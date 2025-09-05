@@ -16,7 +16,7 @@ function normalizeMovement(movement: string): string {
   const m = movement.toLowerCase()
   if (m.includes('auto')) return 'Automático'
   if (m.includes('manual')) return 'Manual'
-  if (m.includes('cuarzo') || m.includes('Quarz')) return 'Cuarzo'
+  if (m.includes('cuarzo') || m.includes('quarz')) return 'Cuarzo'
   if (m.includes('solar')) return 'Solar'
   return 'Otro'
 }
