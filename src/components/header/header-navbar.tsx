@@ -39,7 +39,7 @@ export default function Navbar() {
               <Button
                 asChild
                 variant='link'
-                className='mx-5 font-normal tracking-wider'
+                className='mx-2 font-normal tracking-wider'
               >
                 <span>HOME</span>
               </Button>
@@ -48,7 +48,7 @@ export default function Navbar() {
               <Button
                 asChild
                 variant='link'
-                className='mx-5 font-normal tracking-wider'
+                className='mx-2 font-normal tracking-wider'
               >
                 <span>WATCHES</span>
               </Button>
@@ -57,7 +57,7 @@ export default function Navbar() {
               <Button
                 asChild
                 variant='link'
-                className='mx-5 font-normal tracking-wider'
+                className='mx-2 font-normal tracking-wider'
               >
                 <span>COMPARATOR</span>
               </Button>

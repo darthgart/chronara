@@ -24,6 +24,7 @@ interface SingleSelectProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  className?: string
 }
 
 export function SingleSelect({
@@ -32,6 +33,7 @@ export function SingleSelect({
   value,
   onChange,
   placeholder = 'Seleccionar...',
+  className,
 }: SingleSelectProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -54,11 +56,9 @@ export function SingleSelect({
             <ChevronsUpDown className='ml-2 h-4 w-4 opacity-50' />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[300px] p-0'>
+        <PopoverContent className={`${className} p-0 -mt-10`}>
           <Command>
-            <CommandInput
-              placeholder={`Buscar ${label?.toLowerCase() ?? ''}...`}
-            />
+            <CommandInput placeholder={`${label ?? ''}...`} />
             <CommandList>
               <CommandEmpty>No se encontraron resultados</CommandEmpty>
               <CommandGroup>

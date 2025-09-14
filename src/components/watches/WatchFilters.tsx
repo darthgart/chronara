@@ -1,10 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Watch } from '@/lib/api'
 import { MultiSelect } from './MultiSelector'
 import { SingleSelect } from './SingleSelector'
 import { Input } from '../ui/input'
+import { useFiltersStore } from '@/store'
+import { Button } from '../ui/button'
+import { Trash } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface WatchFiltersProps {
   watches: Watch[]
@@ -22,14 +26,21 @@ function normalizeMovement(movement: string): string {
 }
 
 export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
-  const [brand, setBrand] = useState('')
-  const [pattern, setPattern] = useState('')
-  const [types, setTypes] = useState<string[]>([])
-  const [movement, setMovement] = useState('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  // listas únicas para selects
+  const [brand, setBrand] = useState(searchParams.get('brand') || '')
+  const [pattern, setPattern] = useState(searchParams.get('pattern') || '')
+  const [types, setTypes] = useState<string[]>(
+    searchParams.get('types') ? searchParams.get('types')!.split(',') : []
+  )
+  const [movement, setMovement] = useState(searchParams.get('movement') || '')
+
   const brands = useMemo(
-    () => Array.from(new Set(watches.map((w) => w.brand))),
+    () =>
+      Array.from(new Set(watches.map((w) => w.brand))).sort((a, b) =>
+        a.localeCompare(b, 'es', { sensitivity: 'base' })
+      ),
     [watches]
   )
   const typesList = useMemo(
@@ -42,7 +53,16 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
     [watches]
   )
 
-  // filtrar
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (brand) params.set('brand', brand)
+    if (pattern) params.set('pattern', pattern)
+    if (types.length > 0) params.set('types', types.join(','))
+    if (movement) params.set('movement', movement)
+
+    router.replace(`/watches?${params.toString()}`)
+  }, [brand, pattern, types, movement, router])
+
   const filtered = useMemo(() => {
     return watches.filter((w) => {
       const matchesBrand = brand ? w.brand === brand : true
@@ -50,7 +70,7 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
         ? (w.pattern ?? '').toLowerCase().includes(pattern.toLowerCase())
         : true
       const matchesTypes =
-        types.length > 0 ? types.every((t) => (w.type ?? []).includes(t)) : true
+        types.length > 0 ? (w.type ?? []).some((t) => types.includes(t)) : true
       const matchesMovement = movement
         ? normalizeMovement(w.movement ?? '') === movement
         : true
@@ -59,12 +79,19 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
     })
   }, [watches, brand, pattern, types, movement])
 
-  // notificar resultados
-  onFilter(filtered)
+  useEffect(() => {
+    onFilter(filtered)
+  }, [filtered, onFilter])
+
+  function cleanFields() {
+    setBrand('')
+    setMovement('')
+    setPattern('')
+    setTypes([])
+  }
 
   return (
-    <div className='mb-8 grid gap-4 md:grid-cols-4'>
-      {/* Marca */}
+    <div className='mb-8 grid gap-4 md:grid-cols-5 border rounded-lg p-5'>
       <div>
         <SingleSelect
           label='Marca'
@@ -72,10 +99,9 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
           value={brand}
           onChange={setBrand}
           placeholder='Selecciona marca'
+          className='max-w-52'
         />
       </div>
-
-      {/* Modelo */}
       <div>
         <label className='block text-sm font-medium mb-1'>Modelo</label>
         <Input
@@ -85,13 +111,15 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
           placeholder='Escribe un modelo...'
         />
       </div>
-
-      {/* Tipos */}
       <div>
         <label className='block text-sm font-medium mb-1'>Tipos</label>
-        <MultiSelect options={typesList} value={types} onChange={setTypes} />
+        <MultiSelect
+          options={typesList}
+          value={types}
+          onChange={setTypes}
+          className='max-w-52'
+        />
       </div>
-      {/* Movimiento */}
       <div>
         <SingleSelect
           label='Movimiento'
@@ -99,7 +127,14 @@ export function WatchFilters({ watches, onFilter }: WatchFiltersProps) {
           value={movement}
           onChange={setMovement}
           placeholder='Selecciona movimiento'
+          className='max-w-52'
         />
+      </div>
+      <div>
+        <label className='block text-sm font-medium mb-1'>Limpiar</label>
+        <Button onClick={cleanFields}>
+          <Trash />
+        </Button>
       </div>
     </div>
   )

@@ -23,9 +23,15 @@ interface MultiSelectProps {
   options: string[]
   value: string[]
   onChange: (value: string[]) => void
+  className?: string
 }
 
-export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
+export function MultiSelect({
+  options,
+  value,
+  onChange,
+  className,
+}: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
 
   const toggleOption = (option: string) => {
@@ -35,6 +41,9 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
       onChange([...value, option])
     }
   }
+
+  const visibleValues = value.slice(0, 2)
+  const extraCount = value.length - visibleValues.length
 
   return (
     <div className='space-y-2'>
@@ -48,22 +57,23 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
           >
             {value.length > 0 ? (
               <div className='flex flex-wrap gap-1'>
-                {value.map((v) => (
+                {visibleValues.map((v) => (
                   <Badge
                     key={v}
                     variant='secondary'
                     className='flex items-center gap-1'
                   >
                     {v}
-                    <X
-                      className='h-3 w-3 cursor-pointer'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onChange(value.filter((item) => item !== v))
-                      }}
-                    />
                   </Badge>
                 ))}
+                {extraCount > 0 && (
+                  <Badge
+                    variant='secondary'
+                    className='flex items-center gap-1'
+                  >
+                    +{extraCount}
+                  </Badge>
+                )}
               </div>
             ) : (
               <span className='text-muted-foreground'>
@@ -72,7 +82,7 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[300px] p-0'>
+        <PopoverContent className={`${className} p-0`}>
           <Command>
             <CommandInput placeholder='Buscar tipo...' />
             <CommandList>

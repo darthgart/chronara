@@ -10,8 +10,8 @@ export type Watch = {
   price: number
   releaseDate: string
   image_url: string
-  water_resistance: string
-  diameter: string
+  water_resistance: number
+  diameter: number
   movement: string
   material: string
   description: string
